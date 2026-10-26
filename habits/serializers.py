@@ -1,7 +1,7 @@
 from django.contrib.auth.models import User
 from rest_framework import serializers
 
-from habits.models import Habit
+from habits.models import Habit, TelegramProfile
 from habits.validators import (
     validate_duration,
     validate_periodicity,
@@ -12,8 +12,6 @@ from habits.validators import (
 
 
 class UserSerializer(serializers.ModelSerializer):
-    """Сериализатор пользователя для регистрации."""
-
     password = serializers.CharField(write_only=True, min_length=8)
 
     class Meta:
@@ -25,7 +23,6 @@ class UserSerializer(serializers.ModelSerializer):
 
 
 class HabitSerializer(serializers.ModelSerializer):
-    """Сериализатор привычки."""
 
     class Meta:
         model = Habit
@@ -57,6 +54,16 @@ class HabitSerializer(serializers.ModelSerializer):
 
     def validate_periodicity(self, value):
         return validate_periodicity(value)
+
+    def create(self, validated_data):
+        validated_data['user'] = self.context['request'].user
+        return super().create(validated_data)
+
+class TelegramProfileSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = TelegramProfile
+        fields = ('id', 'chat_id')
 
     def create(self, validated_data):
         validated_data['user'] = self.context['request'].user
