@@ -80,9 +80,9 @@ class TelegramProfile(models.Model):
         verbose_name='Пользователь',
     )
     chat_id = models.CharField(
-        max_length=64,
+        max_length=50,
         verbose_name='Telegram chat_id',
-        help_text='Идентификатор чата пользователя в Telegram '
+        help_text='Идентификатор пользователя в Telegram '
                   'для отправки напоминаний о привычках',
     )
 

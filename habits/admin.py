@@ -21,6 +21,6 @@ class HabitAdmin(admin.ModelAdmin):
 
 @admin.register(TelegramProfile)
 class TelegramProfileAdmin(admin.ModelAdmin):
-    """Админка Telegram-профилей."""
+    """ Админка Telegram-профилей """
 
     list_display = ('id', 'user', 'chat_id')
