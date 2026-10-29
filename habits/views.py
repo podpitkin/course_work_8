@@ -1,19 +1,10 @@
 from rest_framework import generics, permissions, viewsets
-from rest_framework.permissions import AllowAny
-
 from habits.models import Habit
-from habits.serializers import HabitSerializer, UserSerializer
-
-
-class RegisterView(generics.CreateAPIView):
-    """Регистрация нового пользователя."""
-
-    serializer_class = UserSerializer
-    permission_classes = (AllowAny,)
+from habits.serializers import HabitSerializer
 
 
 class HabitViewSet(viewsets.ModelViewSet):
-    """CRUD привычек текущего пользователя."""
+    """ CRUD привычек пользователя """
 
     serializer_class = HabitSerializer
     permission_classes = (permissions.IsAuthenticated,)
@@ -26,7 +17,7 @@ class HabitViewSet(viewsets.ModelViewSet):
 
 
 class PublicHabitListView(generics.ListAPIView):
-    """Список публичных привычек (только чтение)."""
+    """ Список публичных привычек  """
 
     serializer_class = HabitSerializer
     permission_classes = (permissions.IsAuthenticated,)

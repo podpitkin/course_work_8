@@ -1,4 +1,3 @@
-from django.contrib.auth.models import User
 from rest_framework import serializers
 
 from habits.models import Habit
@@ -11,21 +10,7 @@ from habits.validators import (
 )
 
 
-class UserSerializer(serializers.ModelSerializer):
-    """Сериализатор пользователя для регистрации."""
-
-    password = serializers.CharField(write_only=True, min_length=8)
-
-    class Meta:
-        model = User
-        fields = ('id', 'username', 'password')
-
-    def create(self, validated_data):
-        return User.objects.create_user(**validated_data)
-
-
 class HabitSerializer(serializers.ModelSerializer):
-    """Сериализатор привычки."""
 
     class Meta:
         model = Habit
@@ -50,13 +35,16 @@ class HabitSerializer(serializers.ModelSerializer):
         return attrs
 
     def validate_duration(self, value):
-        return validate_duration(value)
+        validate_duration(value)
+        return value
 
     def validate_related_habit(self, value):
-        return validate_related_habit(value)
+        validate_related_habit(value)
+        return value
 
     def validate_periodicity(self, value):
-        return validate_periodicity(value)
+        validate_periodicity(value)
+        return value
 
     def create(self, validated_data):
         validated_data['user'] = self.context['request'].user
