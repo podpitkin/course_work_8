@@ -8,7 +8,7 @@ from django.utils import timezone
 from rest_framework import serializers, status
 from rest_framework.test import APITestCase
 
-from habits.models import Habit, TelegramProfile
+from habits.models import Habit
 from habits.tasks import send_habit_reminders
 from habits.validators import (
     validate_duration,
@@ -17,6 +17,7 @@ from habits.validators import (
     validate_related_habit,
     validate_reward_and_related_habit,
 )
+from users.models import TelegramProfile
 
 
 class HabitModelTests(TestCase):
@@ -342,6 +343,10 @@ class TelegramProfileAPITests(APITestCase):
             '123456789',
         )
 
+def _not_current_time():
+    """ Возвращает время, заведомо не совпадающее с текущим часом/минутой """
+    now = timezone.localtime()
+    return time((now.hour + 1) % 24, now.minute)
 
 class SendHabitRemindersTaskTests(TestCase):
     """ Тесты Celery-задачи рассылки напоминаний """
@@ -352,11 +357,10 @@ class SendHabitRemindersTaskTests(TestCase):
             password='testpass123',
         )
         TelegramProfile.objects.create(user=self.user, chat_id='999888')
-        now = timezone.localtime()
         self.habit = Habit.objects.create(
             user=self.user,
             place='Дом',
-            time=time(now.hour, now.minute),
+            time=_not_current_time(),
             action='Зарядка',
             duration=60,
         )
@@ -366,6 +370,10 @@ class SendHabitRemindersTaskTests(TestCase):
     def test_task_sends_message_to_chat(self, mock_post):
         mock_post.return_value.status_code = 200
         mock_post.return_value.raise_for_status = lambda: None
+        now = timezone.localtime()
+        Habit.objects.filter(pk=self.habit.pk).update(
+            time=time(now.hour, now.minute),
+        )
         send_habit_reminders()
         mock_post.assert_called_once()
         _, kwargs = mock_post.call_args
